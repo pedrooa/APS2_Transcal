@@ -64,21 +64,32 @@ def bc_nodes(parameters, node_list, element_list):
     parameters = parameters[2::]
     for i in parameters:
         e = i.split()
-        for node in node_list:
-            if(node.id_number == e[0]):
-                if(e[1] == 1):
-                    node.restrictions[0] = 1
-                if(e[1] == 2):
-                    node.restrictions[1] = 2
+        # print(e)
+        if(len(e) > 0):
+            for node in node_list:
+                if(node.id_number == int(e[0])):
+                    print(e[0])
+                    if(int(e[1]) == 1):
+                        node.restrictions[0] = 1
+                    if(int(e[1]) == 2):
+                        node.restrictions[1] = 2
+    # print(node_list[1].restrictions)
     return node_list, element_list
 
 
 def loads(parameters, node_list, element_list):
     parameters = parameters[2::]
-    e = 0
-    while(e < len(parameters)):
-        node_list[e].loads = parameters[e]
-        e += 1
+    for i in parameters:
+        e = i.split()
+        if(len(e) > 0):
+            for node in node_list:
+                if(node.id_number == int(e[0])):
+
+                    if(int(e[1]) == 1):
+                        node.load[0] = int(e[2])
+                    if(int(e[1]) == 2):
+                        node.load[1] = int(e[2])
+
     return node_list, element_list
 
 

@@ -5,11 +5,12 @@ from degreesOfFreedom import calc_dof
 from Leitor_entrada import *
 
 
+# Leitura da entrada
 node_list, element_list = Reader(
-    input("Qual arquivo deseja abrir?"))  # Leitura da entrada
+    input("Qual arquivo deseja abrir?"))
 
-
-calc_dof(node_list)   # Encontra os graus de liberdade de cada node
+# Encontra os graus de liberdade de cada node
+calc_dof(node_list)
 
 
 # MATRIZ PARA CADA ELEMENTO
@@ -54,7 +55,7 @@ for element in element_list:
     ke_matrix[3][2] = [ke_matrix[3][2], y2, x2]
     ke_matrix[3][3] = [ke_matrix[3][3], y2, y2]
 
-    element.ke_matrix = ke_matrix
+    element.ke_matrix = ke_matrix  # #########pode dar erro aqui
 
 print(ke_matrix)
 
