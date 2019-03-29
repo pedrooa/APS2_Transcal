@@ -8,7 +8,7 @@ def calc_dof(nodes):
       # i.restriction[0] : restriçao do nó em x(tem se for 1)
       # i.restriction[1] : restrição do nó em y(tem se for 2)
         if(i.restrictions[0] == 1):
-            buffer.append([i, i.restriction[0]])
+            buffer.append([i, i.restrictions[0]])
         else:
             i.degrees[0] = count
             count += 1

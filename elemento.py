@@ -26,7 +26,7 @@ class Element:
         # seno da barra
         self.sin = math.sin(self.calc_angle())
         # Matriz de rigidez de elemento de barra no sistema global
-        self.ke_matrix = []
+        self.ke_matrix = [0][0]
 
     def calc_length(self):
         return float(math.sqrt((self.node_1.x - self.node_2.x)**2 + (self.node_1.y - self.node_2.y)**2))

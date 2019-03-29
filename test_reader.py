@@ -1,7 +1,8 @@
 class Node:
     def __init__(self, id_number, restrictions):
         self.id_number = id_number
-        self.load = restrictions
+        self.restrictions = restrictions
+        self.degrees = [0, 0]
 
 
 def coordinates(parameters, node_list, element_list):
@@ -87,11 +88,42 @@ def Reader(file_name):
                     break
                 counter += letter
             if counter in key_words.keys():
-                if(counter == "LOADS"):
+                if(counter == "COORDINATES"):
+                    nodes, elements = key_words[counter](
+                        parameters.split(','), nodes, elements)
+                if(counter == "BCNODES"):
                     nodes, elements = key_words[counter](
                         parameters.split(','), nodes, elements)
                 counter = ''
+        print("ANTES", nodes[0].degrees)
+        calc_dof(nodes)
+        print("DEPOIS", nodes[2].degrees)
         return nodes, elements
+
+
+def calc_dof(nodes):
+    buffer = []
+    count = 1
+    for i in nodes:
+      # i.restriction[0] : restriçao do nó em x(tem se for 1)
+      # i.restriction[1] : restrição do nó em y(tem se for 2)
+        if(i.restrictions[0] == 1):
+            buffer.append([i, i.restrictions[0]])
+        else:
+            i.degrees[0] = count
+            count += 1
+        if (i.restrictions[1] == 2):
+            buffer.append([i, i.restrictions[1]])
+        else:
+            i.degrees[1] = count
+            count += 1
+    for e in buffer:
+        if(e[1] == 1):
+            e[0].degrees[0] = count
+            count += 1
+        if(e[1] == 2):
+            e[0].degrees[1] = count
+            count += 1
 
 
 Reader(input("Qual arquivo deseja abrir?"))
