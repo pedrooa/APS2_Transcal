@@ -179,3 +179,7 @@ for e in element_list:
 txt_out += "*ELEMENT_STRESSES\n"
 for e in element_list:
     txt_out += str(e.id_number) + str(e.stress) + "\n"
+
+out = open("arquivoSaida.out", "w+")
+out.write(txt_out)
+out.close()
