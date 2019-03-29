@@ -1,16 +1,105 @@
 import numpy as np
+import math
 from elemento import *
 from node import *
 from degreesOfFreedom import calc_dof
 from Leitor_entrada import *
 
+############# DADOS PARA TESTE
 
+class Element:
+    def __init__(self, id_number, node_1, node_2, geometric_value=None):
+        self.id_number = id_number
+        # Node_1 e node_2
+        self.node_1 = node_1
+        self.node_2 = node_2
+        # Modulo de elasticidade
+        self.elasticity_value = 210 * (10**8)
+        # tensao de tração admissível
+        self.max_traction = 0
+        # tensão a compressão admissível
+        self.max_tension = 0
+        # seção transversal da barra
+        self.area = 2 * 10**(-4)
+        # tamanho da barra
+        #self.length = self.calc_length()
+        self.stress = 0  # COLOCAR AQUI RESULTADOS
+        self.strain = 0  # COLOCAR AQUI RESULTADOS
+        # cosseno da barra
+        #self.cos = math.cos(self.calc_angle())
+        # seno da barra
+        #self.sin = math.sin(self.calc_angle())
+        # Matriz de rigidez de elemento de barra no sistema global
+        self.ke_matrix = [0][0]
+
+class Node:
+    def __init__(self, id_number, coordinates, restrictions=[0, 0], loads=[0, 0]):
+        self.id = id_number
+        self.coordinates = coordinates
+        self.restrictions = restrictions
+        if(restrictions[0] == 1):
+            loads[0] = "x"
+        if(restrictions[1] == 1):
+            loads[1] = "x"
+        self.load = loads
+        self.degrees = [0, 0]  # degrees of freedom
+        self.displacement_x = 0  # COLOCAR AQUI O RESULTADO DO DESOLOCAMENTO
+        self.displacement_y = 0  # COLOCAR AQUI O RESULTADO DO DESLOCAMENTO
+        self.Rx = 0             # COLOCAR AQUI O RESULTADO DO DESLOCAMENTO
+        self.Ry = 0            # COLOCAR AQUI O RESULTADO DO DESLOCAMENTO
+
+
+#elasticity_value = 210 * (10**8)
+#area = 2 * 10**(-4)
+
+n0 = Node(0, [0, 0], [1, 0], [0, 0])
+n0.degrees = [0, 1]
+
+n1 = Node(1, [0, 0.4], [1, 1], [0, 0])
+n1.degrees = [2, 3]
+
+n2 = Node(2, [0.3, 0.4], [0, 0], [150, -100])
+n2.degrees = [4, 5]
+
+
+#######################################
+
+
+e0 = Element(1, n0, n1)
+e0.length = 0.4
+e0.cos = 0
+e0.sin = 1
+e0.node_1.degrees = [0, 1]
+e0.node_2.degrees = [2, 3]
+
+
+e1 = Element(2, n1, n2)
+e1.length = 0.3
+e1.cos = 1
+e1.sin = 0
+e1.node_1.degrees = [2, 3]
+e1.node_2.degrees = [4, 5]
+
+e2 = Element(3, n2, n0)
+e2.length = 0.5
+e2.cos = -0.6
+e2.sin = -0.8
+e2.node_1.degrees = [4, 5]
+e2.node_2.degrees = [0, 1]
+
+
+element_list = [e0, e1, e2]
+
+#######################################
+
+'''
 # Leitura da entrada
 node_list, element_list = Reader(
     input("Qual arquivo deseja abrir?"))
+'''
 
 # Encontra os graus de liberdade de cada node
-calc_dof(node_list)
+#calc_dof(node_list)
 
 
 # MATRIZ PARA CADA ELEMENTO
@@ -55,13 +144,14 @@ for element in element_list:
     element.ke_matrix[3][2] = [element.ke_matrix[3][2], y2, x2]
     element.ke_matrix[3][3] = [element.ke_matrix[3][3], y2, y2]
 
-print(ke_matrix)
+    #print(element.ke_matrix)
 
 
 #####################################################################
 # matriz global
 
 # DEFINIR
+node_list = [n0, n1, n2]
 number_of_nodes = len(node_list)
 
 # lista com todos os elementos = element_list
@@ -76,7 +166,6 @@ for e in element_list:
             global_matrix[c[1]][c[2]] += c[0]
 
     #global_matrix = np.multiply(10**8, global_matrix)
-
 
 
 #####################################################################
@@ -115,11 +204,16 @@ for i, item in enumerate(global_vector):
         new_global_matrix = np.delete(new_global_matrix, i-temp, axis=1)
         temp += 1
 
-
 #####################################################################
+# 1 - resolver os sistemas de equacoes
+'''
+U_vector = np.linalg.solve(new_global_matrix, global_vector)
+'''
+# 2 - resolver os sistemas de equacoes por solucao numerica
 U_vector = []
 
 lte = 100
+tol = 0.011
 
 for i in range(len(new_global_vector)):
     U_vector.append(0)
@@ -150,6 +244,8 @@ for i, item in enumerate(global_vector):
         full_U_vector.append(U_vector[index_u])
         index_u += 1
 
+
+print("full_U_vector ------> ", full_U_vector)  #vetor dos deslocamentos
 #####################################################################
 # descobrindo o vetor de reacoes completo
 
