@@ -22,13 +22,17 @@ class Element:
         self.stress = 0  # COLOCAR AQUI RESULTADOS
         self.strain = 0  # COLOCAR AQUI RESULTADOS
         # cosseno da barra
-        self.cos = math.cos(self.calc_angle())
-        if(-0.001 < self.cos < 0.001):
-            self.cos = 0
+        self.cos = (self.node_2.coordinates[0] -
+                    self.node_1.coordinates[0])/self.length
+        self.sin = (self.node_2.coordinates[1] -
+                    self.node_1.coordinates[1])/self.length
+        # self.cos = math.cos(self.calc_angle())
+        # if(-0.001 < self.cos < 0.001):
+        #     self.cos = 0
         # seno da barra
-        self.sin = math.sin(self.calc_angle())
-        if(-0.001 < self.sin < 0.001):
-            self.sin = 0
+        # self.sin = math.sin(self.calc_angle())
+        # if(-0.001 < self.sin < 0.001):
+        #     self.sin = 0
         # Matriz de rigidez de elemento de barra no sistema global
         self.ke_matrix = [0][0]
 
@@ -39,11 +43,11 @@ class Element:
             return 0
         return length
 
-    def calc_angle(self):
-        if(abs(self.node_2.coordinates[0] - self.node_1.coordinates[0]) == 0):
-            return math.pi/2
-        angle = math.atan((self.node_1.coordinates[1] - self.node_2.coordinates[1])/(
-            self.node_1.coordinates[0] - self.node_2.coordinates[0]))
-        if(-0.001 < angle < 0.001):
-            return 0
-        return angle
+    # def calc_angle(self):
+    #     if(abs(self.node_2.coordinates[0] - self.node_1.coordinates[0]) == 0):
+    #         return math.pi/2
+    #     angle = math.atan((self.node_1.coordinates[1] - self.node_2.coordinates[1])/(
+    #         self.node_1.coordinates[0] - self.node_2.coordinates[0]))
+    #     if(-0.001 < angle < 0.001):
+    #         return 0
+    #     return 2*math.pi-angle

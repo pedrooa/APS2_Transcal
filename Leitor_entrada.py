@@ -66,14 +66,13 @@ def bc_nodes(parameters, node_list, element_list):
     parameters = parameters[2::]
     for i in parameters:
         e = i.split()
-        # print(e)
         if(len(e) > 0):
             for node in node_list:
                 if(node.id_number == int(e[0])):
                     if(int(e[1]) == 1):
                         node.restrictions[0] = 1
-                    if(int(e[1]) == 2):
-                        node.restrictions[1] = 2
+                    elif(int(e[1]) == 2):
+                        node.restrictions[1] = 1
     return node_list, element_list
 
 

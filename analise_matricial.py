@@ -9,9 +9,21 @@ from Leitor_entrada import *
 node_list, element_list = Reader(
     input("Qual arquivo deseja abrir?"))
 
+
 # Encontra os graus de liberdade de cada node
 calc_dof(node_list)
-# print(len(element_list))
+
+for n in node_list:
+    if(n.restrictions[0] == 1):
+        n.load[0] = "x"
+    if(n.restrictions[1] == 1):
+        n.load[1] = "x"
+    print("#########node id: {}########".format(n.id_number))
+    print("Coordinates : ", n.coordinates)
+    print("Restricoes : ", n.restrictions)
+    print("Loads : ", n.load)
+    print("graus de liberdade", n.degrees)
+    print("########################")
 
 
 # MATRIZ PARA CADA ELEMENTO
@@ -103,6 +115,7 @@ for n in node_list:  # populando a lista completa
 
 
 for n in node_list:  # populando a lista com as cond de controno aplicadas
+
     if(n.load[0] != "x"):  # so adiciona os termos numericos e conhecidos
         new_global_list.append(n.load[0])
     if(n.load[1] != "x"):  # so adiciona os termos numericos e conhecidos
@@ -183,9 +196,9 @@ for node in node_list:
 # descobrindo a deformacao e tensao de cada elemento
 index = 0
 for e in element_list:
-    print(e.length)
-    print(e.cos)
-    print(e.sin)
+    # print(e.length)
+    # print(e.node_1.degrees)
+    # print(e.node_2.degrees)
     u1 = full_U_vector[index]
     v1 = full_U_vector[index + 1]
 
@@ -211,7 +224,7 @@ txt_out += "*REACTION_FORCES\n"
 for i in node_list:
     if(i.restrictions[0] == 1):
         txt_out += str(i.id_number) + " " + "FX = " + str(i.Rx) + "\n"
-    if(i.restrictions[1] == 2):
+    if(i.restrictions[1] == 1):
         txt_out += str(i.id_number) + " " + "FY = " + str(i.Ry) + "\n"
 
 txt_out += "*ELEMENT_STRAINS\n"
