@@ -5,7 +5,8 @@ from node import *
 from degreesOfFreedom import calc_dof
 from Leitor_entrada import *
 
-############# DADOS PARA TESTE
+# DADOS PARA TESTE
+
 
 class Element:
     def __init__(self, id_number, node_1, node_2, geometric_value=None):
@@ -31,6 +32,7 @@ class Element:
         #self.sin = math.sin(self.calc_angle())
         # Matriz de rigidez de elemento de barra no sistema global
         self.ke_matrix = [0][0]
+
 
 class Node:
     def __init__(self, id_number, coordinates, restrictions=[0, 0], loads=[0, 0]):
@@ -99,7 +101,7 @@ node_list, element_list = Reader(
 '''
 
 # Encontra os graus de liberdade de cada node
-#calc_dof(node_list)
+# calc_dof(node_list)
 
 
 # MATRIZ PARA CADA ELEMENTO
@@ -115,9 +117,9 @@ for element in element_list:
     s2 *= EA_L
 
     element.ke_matrix = [[c2, cs, -c2, -cs],
-                        [cs, s2, -cs, -s2],
-                        [-c2, -cs, c2, cs],
-                        [-cs, -s2, cs, s2]]
+                         [cs, s2, -cs, -s2],
+                         [-c2, -cs, c2, cs],
+                         [-cs, -s2, cs, s2]]
 
     x1 = element.node_1.degrees[0]
     y1 = element.node_1.degrees[1]
@@ -144,7 +146,7 @@ for element in element_list:
     element.ke_matrix[3][2] = [element.ke_matrix[3][2], y2, x2]
     element.ke_matrix[3][3] = [element.ke_matrix[3][3], y2, y2]
 
-    #print(element.ke_matrix)
+    print(element.ke_matrix)
 
 
 #####################################################################
@@ -245,16 +247,16 @@ for i, item in enumerate(global_vector):
         index_u += 1
 
 
-print("full_U_vector ------> ", full_U_vector)  #vetor dos deslocamentos
+print("full_U_vector ------> ", full_U_vector)  # vetor dos deslocamentos
 #####################################################################
 # descobrindo o vetor de reacoes completo
 
 
 full_global_vector = np.matmul(global_matrix, full_U_vector)
-print("full_global_vector ------> ", full_global_vector)  #vetor das forcas
+print("full_global_vector ------> ", full_global_vector)  # vetor das forcas
 
 #####################################################################
-#descobrindo a deformacao e tensao de cada elemento
+# descobrindo a deformacao e tensao de cada elemento
 index = 0
 for e in element_list:
     u1 = full_U_vector[index]
@@ -264,11 +266,12 @@ for e in element_list:
         index = -2
     u2 = full_U_vector[index + 2]
     v2 = full_U_vector[index + 3]
-    e.strain = 1/e.length * np.dot([-e.cos, -e.sin, e.cos, e.sin], [u1, v1, u2, v2])
+    e.strain = 1/e.length * \
+        np.dot([-e.cos, -e.sin, e.cos, e.sin], [u1, v1, u2, v2])
     e.stress = e.strain * e.elasticity_value
     index += 2
-    print(e.strain) #deformacao de cada elemento
-    print(e.stress) #tensao em cada elemento
+    print(e.strain)  # deformacao de cada elemento
+    print(e.stress)  # tensao em cada elemento
 
 #####################################################################
 # PREENCHER OS RESULTADOS NOS ATRIBUTOS DOS ELEMENTOS E NODES

@@ -3,7 +3,7 @@ from node import *
 
 def calc_dof(nodes):
     buffer = []
-    count = 1
+    count = 0
     for i in nodes:
       # i.restriction[0] : restriçao do nó em x(tem se for 1)
       # i.restriction[1] : restrição do nó em y(tem se for 2)

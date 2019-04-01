@@ -11,6 +11,7 @@ node_list, element_list = Reader(
 
 # Encontra os graus de liberdade de cada node
 calc_dof(node_list)
+# print(len(element_list))
 
 
 # MATRIZ PARA CADA ELEMENTO
@@ -26,14 +27,24 @@ for element in element_list:
     s2 *= EA_L
 
     element.ke_matrix = [[c2, cs, -c2, -cs],
-                        [cs, s2, -cs, -s2],
-                        [-c2, -cs, c2, cs],
-                        [-cs, -s2, cs, s2]]
+                         [cs, s2, -cs, -s2],
+                         [-c2, -cs, c2, cs],
+                         [-cs, -s2, cs, s2]]
+
+    # counter1 = 0
+    # counter2 = 0
+    # while(counter1 < element.ke_matrix[0]):
 
     x1 = element.node_1.degrees[0]
     y1 = element.node_1.degrees[1]
     x2 = element.node_2.degrees[0]
     y2 = element.node_2.degrees[1]
+    for counter1, e in enumerate(element.ke_matrix):
+        for counter2, i in enumerate(e):
+            if(-0.001 < i < 0.001):
+                element.ke_matrix[counter1][counter2] = 0
+            else:
+                element.ke_matrix[counter1][counter2] = i/10
 
     element.ke_matrix[0][0] = [element.ke_matrix[0][0], x1, x1]
     element.ke_matrix[0][1] = [element.ke_matrix[0][1], x1, y1]
@@ -54,8 +65,7 @@ for element in element_list:
     element.ke_matrix[3][1] = [element.ke_matrix[3][1], y2, y1]
     element.ke_matrix[3][2] = [element.ke_matrix[3][2], y2, x2]
     element.ke_matrix[3][3] = [element.ke_matrix[3][3], y2, y2]
-
-print(ke_matrix)
+    # print(element.ke_matrix)
 
 
 #####################################################################
@@ -76,7 +86,6 @@ for e in element_list:
             global_matrix[c[1]][c[2]] += c[0]
 
     #global_matrix = np.multiply(10**8, global_matrix)
-
 
 
 #####################################################################
@@ -115,11 +124,11 @@ for i, item in enumerate(global_vector):
         new_global_matrix = np.delete(new_global_matrix, i-temp, axis=1)
         temp += 1
 
-
 #####################################################################
 U_vector = []
 
 lte = 100
+tol = 0.011
 
 for i in range(len(new_global_vector)):
     U_vector.append(0)
@@ -139,7 +148,6 @@ while(lte > 0):
 
 #####################################################################
 # completando o vetor U com os zeros
-
 index_u = 0
 full_U_vector = []  # lista com os zeros e os valores encontrados
 
@@ -149,18 +157,35 @@ for i, item in enumerate(global_vector):
     else:
         full_U_vector.append(U_vector[index_u])
         index_u += 1
+count = 0
+for node in node_list:
+    node.displacement_x = full_U_vector[count]
+    count += 1
+    node.displacement_y = full_U_vector[count]
+    count += 1
+
 
 #####################################################################
 # descobrindo o vetor de reacoes completo
 
 
 full_global_vector = np.matmul(global_matrix, full_U_vector)
-print("full_global_vector ------> ", full_global_vector)  #vetor das forcas
+# print("full_global_vector ------> ", full_global_vector)  # vetor das forcas
+count = 0
+for node in node_list:
+    node.Rx = full_global_vector[count]
+    count += 1
+    node.Ry = full_global_vector[count]
+    count += 1
+
 
 #####################################################################
-#descobrindo a deformacao e tensao de cada elemento
+# descobrindo a deformacao e tensao de cada elemento
 index = 0
 for e in element_list:
+    print(e.length)
+    print(e.cos)
+    print(e.sin)
     u1 = full_U_vector[index]
     v1 = full_U_vector[index + 1]
 
@@ -168,32 +193,33 @@ for e in element_list:
         index = -2
     u2 = full_U_vector[index + 2]
     v2 = full_U_vector[index + 3]
-    e.strain = 1/e.length * np.dot([-e.cos, -e.sin, e.cos, e.sin], [u1, v1, u2, v2])
+    e.strain = 1/e.length * \
+        np.dot([-e.cos, -e.sin, e.cos, e.sin], [u1, v1, u2, v2])
     e.stress = e.strain * e.elasticity_value
     index += 2
-    print(e.strain) #deformacao de cada elemento
-    print(e.stress) #tensao em cada elemento
+    # print(e.strain)  # deformacao de cada elemento
+    # print(e.stress)  # tensao em cada elemento
 
 #####################################################################
 # PREENCHER OS RESULTADOS NOS ATRIBUTOS DOS ELEMENTOS E NODES
 txt_out = "*DISPLACEMENTS\n"
 for i in node_list:
     txt_out += str(i.id_number) + " " + str(i.displacement_x) + \
-        " " + str(i.displacement_y) + "0.0000e+00\n"
+        " " + str(i.displacement_y) + " 0.0000e+00\n"
 
 txt_out += "*REACTION_FORCES\n"
 for i in node_list:
-    if(i.restriction[0] == 1):
-        txt_out += str(i.id_number) + "FX = " + str(i.Rx) + "\n"
-    if(i.restriction[1] == 2):
-        txt_out += str(i.id_number) + "FY = " + str(i.Ry) + "\n"
+    if(i.restrictions[0] == 1):
+        txt_out += str(i.id_number) + " " + "FX = " + str(i.Rx) + "\n"
+    if(i.restrictions[1] == 2):
+        txt_out += str(i.id_number) + " " + "FY = " + str(i.Ry) + "\n"
 
 txt_out += "*ELEMENT_STRAINS\n"
 for e in element_list:
-    txt_out += str(e.id_number) + str(e.strain) + "\n"
+    txt_out += str(e.id_number) + " " + str(e.strain) + "\n"
 txt_out += "*ELEMENT_STRESSES\n"
 for e in element_list:
-    txt_out += str(e.id_number) + str(e.stress) + "\n"
+    txt_out += str(e.id_number) + " " + str(e.stress) + "\n"
 
 out = open("arquivoSaida.out", "w+")
 out.write(txt_out)
