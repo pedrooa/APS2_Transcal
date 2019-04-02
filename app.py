@@ -44,7 +44,10 @@ class Demo1:
         self.cargas_entry.grid(row = 5, column = 1)
 
         self.greet_button = Button(self.master, text = "Next", command = self.new_window)
-        self.greet_button.grid(row = 6, column = 1)    
+        self.greet_button.grid(row = 6, column = 1)   
+
+        self.close_button = Button(self.master, text = "Close", command = self.close)
+        self.close_button.grid(row = 6, column = 2) 
 
 
     def new_window(self):
@@ -69,6 +72,10 @@ class Demo1:
         #         # self.UploadedFile = f
         # except:
         #     print("No file exists")
+
+    def close(self):
+        self.filename = "entradas.txt"
+        self.master.destroy()
 
 class Insira_nos:
     def __init__(self, master, n_nos, n_elementos, n_cargas):
@@ -310,9 +317,9 @@ class Insira_nos:
         txt_entradas.write("*BCNODES\n{0}\n".format(len(self.f_gdlX) + len(self.f_gdlY)))
         i = 0
         while i < len(self.f_gdlY) or i < len(self.f_gdlX):
-            if self.f_gdlX[i] != 0:
+            if self.f_gdlX[i] != "0":
                 txt_entradas.write("{0} {1}\n".format(i + 1, self.f_gdlX[i]))
-            if self.f_gdlY[i] != 0:
+            if self.f_gdlY[i] != "0":
                 txt_entradas.write("{0} {1}\n".format(i + 1, int(self.f_gdlY[i]) + 1))
             i += 1
 

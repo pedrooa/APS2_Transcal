@@ -187,26 +187,16 @@ def truss_calc(filename):
         count += 1
 
     #####################################################################
-    index = 0
     for e in element_list:
         u1 = e.node_1.displacement_x
         v1 = e.node_1.displacement_y
         u2 = e.node_2.displacement_x
         v2 = e.node_2.displacement_y
-        # u1 = full_U_vector[index]
-        # v1 = full_U_vector[index + 1]
-
-        # if(index + 4 > len(full_U_vector)):
-        #     index = -2
-        # u2 = full_U_vector[index + 2]
-        # v2 = full_U_vector[index + 3]
         e.strain = 1/e.length * \
             np.dot([-e.cos, -e.sin, e.cos, e.sin], [u1, v1, u2, v2])
         e.stress = e.strain * e.elasticity_value
-        index += 2
 
     #####################################################################
-    # PREENCHER OS RESULTADOS NOS ATRIBUTOS DOS ELEMENTOS E NODES
     txt_out = "*DISPLACEMENTS\n"
     for i in node_list:
         txt_out += str(i.id_number) + " " + ('%E' % Decimal(str(i.displacement_x))) + \
