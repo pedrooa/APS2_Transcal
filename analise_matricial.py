@@ -3,6 +3,7 @@ from elemento import *
 from node import *
 from degreesOfFreedom import calc_dof
 from Leitor_entrada import *
+from decimal import Decimal
 
 
 # Leitura da entrada
@@ -13,17 +14,18 @@ node_list, element_list = Reader(
 # Encontra os graus de liberdade de cada node
 calc_dof(node_list)
 
+# Preparando para os calculos
 for n in node_list:
     if(n.restrictions[0] == 1):
         n.load[0] = "x"
     if(n.restrictions[1] == 1):
         n.load[1] = "x"
-    print("#########node id: {}########".format(n.id_number))
-    print("Coordinates : ", n.coordinates)
-    print("Restricoes : ", n.restrictions)
-    print("Loads : ", n.load)
-    print("graus de liberdade", n.degrees)
-    print("########################")
+    # print("#########node id: {}########".format(n.id_number))
+    # print("Coordinates : ", n.coordinates)
+    # print("Restricoes : ", n.restrictions)
+    # print("Loads : ", n.load)
+    # print("graus de liberdade", n.degrees)
+    # print("########################")
 
 
 # MATRIZ PARA CADA ELEMENTO
@@ -56,7 +58,7 @@ for element in element_list:
             if(-0.001 < i < 0.001):
                 element.ke_matrix[counter1][counter2] = 0
             else:
-                element.ke_matrix[counter1][counter2] = i/10
+                element.ke_matrix[counter1][counter2] = i
 
     element.ke_matrix[0][0] = [element.ke_matrix[0][0], x1, x1]
     element.ke_matrix[0][1] = [element.ke_matrix[0][1], x1, y1]
@@ -97,7 +99,7 @@ for e in element_list:
         for c in line:
             global_matrix[c[1]][c[2]] += c[0]
 
-    #global_matrix = np.multiply(10**8, global_matrix)
+    # global_matrix = np.multiply(10**8, global_matrix)
 
 
 #####################################################################
@@ -193,12 +195,8 @@ for node in node_list:
 
 
 #####################################################################
-# descobrindo a deformacao e tensao de cada elemento
 index = 0
 for e in element_list:
-    # print(e.length)
-    # print(e.node_1.degrees)
-    # print(e.node_2.degrees)
     u1 = full_U_vector[index]
     v1 = full_U_vector[index + 1]
 
@@ -210,29 +208,31 @@ for e in element_list:
         np.dot([-e.cos, -e.sin, e.cos, e.sin], [u1, v1, u2, v2])
     e.stress = e.strain * e.elasticity_value
     index += 2
-    # print(e.strain)  # deformacao de cada elemento
-    # print(e.stress)  # tensao em cada elemento
+
 
 #####################################################################
 # PREENCHER OS RESULTADOS NOS ATRIBUTOS DOS ELEMENTOS E NODES
 txt_out = "*DISPLACEMENTS\n"
 for i in node_list:
-    txt_out += str(i.id_number) + " " + str(i.displacement_x) + \
-        " " + str(i.displacement_y) + " 0.0000e+00\n"
+    txt_out += str(i.id_number) + " " + ('%E' % Decimal(str(i.displacement_x))) + \
+        " " + ('%E' % Decimal(str(i.displacement_y))) + " 0.0000e+00\n"
 
 txt_out += "*REACTION_FORCES\n"
 for i in node_list:
     if(i.restrictions[0] == 1):
-        txt_out += str(i.id_number) + " " + "FX = " + str(i.Rx) + "\n"
+        txt_out += str(i.id_number) + " " + "FX = " + \
+            ('%E' % Decimal(str(i.Rx))) + "\n"
     if(i.restrictions[1] == 1):
-        txt_out += str(i.id_number) + " " + "FY = " + str(i.Ry) + "\n"
+        txt_out += str(i.id_number) + " " + "FY = " + \
+            ('%E' % Decimal(str(i.Ry))) + "\n"
 
 txt_out += "*ELEMENT_STRAINS\n"
 for e in element_list:
-    txt_out += str(e.id_number) + " " + str(e.strain) + "\n"
+    txt_out += str(e.id_number) + " " + ('%E' % Decimal(str(e.strain))) + "\n"
 txt_out += "*ELEMENT_STRESSES\n"
 for e in element_list:
-    txt_out += str(e.id_number) + " " + str(e.stress) + "\n"
+    txt_out += str(e.id_number) + " " + ('%E' %
+                                         Decimal(str(e.stress))) + "\n"
 
 out = open("arquivoSaida.out", "w+")
 out.write(txt_out)
