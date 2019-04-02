@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 from tkinter import Label, Button, Entry
+from analise_matricial import *
 
 class Demo1:
     def __init__(self, master):
@@ -18,6 +19,11 @@ class Demo1:
 
         self.insertTxt_button = Button(self.master, text = "Inserir arquivo .txt", command = self.OpenFile)  #Inserir comando de entrada
         self.insertTxt_button.grid(row = 2, column = 0)
+        self.UploadedFile = ""
+
+        self.filename = ""
+        if(self.filename != ""):
+            self.master.destroy()
 
         self.nos_entry_label = Label(self.master, text = "Número de nós da estrutura:")
         self.nos_entry_label.grid(row = 3, column = 0)
@@ -47,18 +53,22 @@ class Demo1:
         self.n_elementos = int(self.elementos_entry.get())
         self.newWindow = tk.Toplevel(self.master)
         self.app = Insira_nos(self.newWindow, self.n_nos, self.n_elementos, self.n_cargas)
+        # self.master.destroy()
 
     def OpenFile(self):
-        self.filename = askopenfilename(initialdir="C:/Users/Batman/Documents/Programming/tkinter/",
+        self.filename = askopenfilename(initialdir="./",
                            filetypes =(("Text File", "*.txt"),("All Files","*.*")),
                            title = "Choose a file."
                            )
+        self.master.destroy()
         #Using try in case user types in unknown file or closes without choosing a file.
-        try:
-            with open(self.filename,'r') as UseFile:
-                print(UseFile.read())
-        except:
-            print("No file exists")
+        # try:
+        #     with open(self.filename,'r') as UseFile:
+        #         print(UseFile.read())
+        #         # f = UseFile
+        #         # self.UploadedFile = f
+        # except:
+        #     print("No file exists")
 
 class Insira_nos:
     def __init__(self, master, n_nos, n_elementos, n_cargas):
@@ -138,6 +148,8 @@ class Insira_nos:
         self.gdly_label.grid(row = 0, column = 7)
         self.gdly_exemplo = Label(self.master, text = "0: Sem restrição, 1: Restrito")
         self.gdly_exemplo.grid(row = 1, column = 7)
+        
+        self.filename = ""
 
 
 
@@ -309,6 +321,8 @@ class Insira_nos:
         while i < len(self.f_carga_nos):
             txt_entradas.write("{0} {1} {2}\n".format(self.f_carga_nos[i], self.f_direcao[i], self.f_forca_aplicada[i]))
             i += 1
+        self.filename = "entradas.txt"
+        self.master.destroy()
 
 
 
@@ -322,7 +336,14 @@ class Insira_nos:
 def main(): 
     root = tk.Tk()
     app = Demo1(root)
+    # texto_manual = Insira_nos()
     root.mainloop()
+    if (app.filename != ""):
+        print("Foi")
+        truss_calc(app.filename)
+    # elif(app.filename != ""):
+    #     truss_calc(app.)
+
 
 if __name__ == '__main__':
     main() 
